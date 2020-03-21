@@ -1,41 +1,33 @@
-import java.io.IOException;
-import java.util.*;
+import java.io.IOException; 
 
 /**
  * Program to display and modify a simple DVD collection
  */
 
 public class DVDManager {
-
+ 
 	public static void main(String[] args) {
 
 		DVDUserInterface dlInterface;
 		DVDCollection dl = new DVDCollection();
-
-		var scan = new Scanner(System.in);
-
-		System.out.println("Enter name of data file to load:");
-		String filename = scan.nextLine();
+		
+		dlInterface = new DVDGUI(dl);
+		
+		String fileName = dlInterface.getFileName();
+		String possibleError;
 		try {
-			dl.loadData(filename);
+			possibleError = dl.loadData(fileName);
+			// If no errors happened
+			if(possibleError.equals("NA")){
+				dlInterface.processCommands();
+			}
+			else{
+				dlInterface.showError(possibleError);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		System.out.println("Input interface type: C=Console, G=GUI");
-		String interfaceType = scan.nextLine();
-		if (interfaceType.equals("C")) {
-			dlInterface = new DVDConsoleUI(dl);
-			dlInterface.processCommands();
-		} else if (interfaceType.equals("G")) {
-			dlInterface = new DVDGUI(dl);
-			dlInterface.processCommands();
-		} else {
-			System.out.println("Unrecognized interface type. Program exiting.");
-			System.exit(0);
-		}
-		
 	}
 
 }

@@ -10,7 +10,6 @@ public class DVD {
 		runningTime = dvdRunningTime;
 	}
 	
-	//CAN I DO THIS? ADD THIS COPY CONST???? ((((((((((((((((((:
 	public DVD(DVD other){
 		this.title = other.title;
 		this.rating = other.rating;
@@ -45,6 +44,6 @@ public class DVD {
 	}
 
 	public String toString() {
-		return title +"/" + rating + "/" + String.valueOf(runningTime)+"\n";
+		return title +"," + rating + "," + String.valueOf(runningTime)+"\n";
 	}
 }

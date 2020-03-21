@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -9,10 +10,12 @@ public class DVDCollection {
 	private DVD[] dvdArray;/** The array to contain the DVDs */
 	private String sourceName; /** The name of the data file that contains dvd data */
 	private boolean modified; //Boolean flag to indicate whether the DVD collection was modified since it was
+	private boolean isReadingFromFile;
 	
 	public DVDCollection() {
 		numdvds = 0;
 		dvdArray = new DVD[2];
+		modified = isReadingFromFile = false;
 	}
 
 	public String toString() {
@@ -27,18 +30,15 @@ public class DVDCollection {
 		return number + length + collector;
 	}
 
-	public void addOrModifyDVD(String title, String rating, String runningTime) {
+	public boolean addOrModifyDVD(String title, String rating, String runningTime) {
 		int num_convertion = Integer.parseInt(runningTime);
 		int found_index = getIndexOf(title);
 		
 		if( found_index != -1){
-			//System.out.println("\nMODIFY");
 			dvdArray[found_index].setRating(rating);
 			dvdArray[found_index].setRunningTime(num_convertion);
-			modified = true;
 		}
 		else{	
-			//System.out.println("\nADD"); //sorted insert in alphebetical order
 			DVD new_add = new DVD(title, rating, num_convertion);
 			if(isFull()){
 				resize();
@@ -54,13 +54,15 @@ public class DVDCollection {
 			}
 			dvdArray[insert_location] = new_add;
 			numdvds++;
-			modified = true;
 		}
+		if( ! isReadingFromFile)
+			modified = true;
+		return modified;
 	}
 	
 	public void removeDVD(String title) {
 		int found_index = getIndexOf(title);
-		System.out.println(found_index);
+		//System.out.println("Found this title in list: "+found_index);
 		if(found_index != -1){
 			for(int i = found_index; i < numdvds-1; i++){
 				dvdArray[i] = dvdArray[i+1];
@@ -76,7 +78,7 @@ public class DVDCollection {
 		for(int i = 0; i < numdvds; i++){
 			DVD item = dvdArray[i];
 			if (rating.equals(item.getRating()))
-				all += item.toString();
+				all += item.getTitle() + "\n";
 		}
 		return all;
 	}
@@ -91,7 +93,7 @@ public class DVDCollection {
 		return total;
 	}
 
-	public void loadData(String filename) throws IOException {
+	public String loadData(String filename) throws IOException {
 		sourceName = filename;
 
 		ArrayList <String> valid_ratings= new ArrayList<String>();
@@ -102,51 +104,52 @@ public class DVDCollection {
 		valid_ratings.add("NC-17");
 
 		Path path = Paths.get(sourceName);
-		System.out.println(path);
-
+		if(Files.notExists(path)){
+			return "No file with this name found";
+		}
+		
 		Scanner scanner = new Scanner(path);
 		// read line by line
 		while (scanner.hasNextLine()) {
+			isReadingFromFile = true;
 			// process each line
 			String line = scanner.nextLine();
-			//split the line on , characters
-			String[] separated_values = line.split(",");
 
+			//split the line on , characters
+			String[] separated_values  = line.replaceAll("\\s", "").split(",");
+			
 			if(separated_values.length > 3 || separated_values.length < 3){
-				System.out.println("line in file is too long or too short");
-				break;
+				return "File doesn't follow the expected format TITLE/RATING/##";
 			}
 			String name = separated_values[0];
 			String rate = separated_values[1];
 			String duration= separated_values[2];
 			
 			if(! valid_ratings.contains(rate)){
-				System.out.println("Invalid rating in file found\n");
-				break;
+				return "Invalid rating in file found";
 			}
 			//else
 				//System.out.println("Valid rating yay\n");
 			if(! duration.matches("(.)*(\\d)(.)*") ){
-				System.out.println("Invalid duration in file found\n");
-				break;
+				return "Invalid duration in file found";
 			}
 			//else
 				//System.out.println("Valid number duration yay\n");
 
 			addOrModifyDVD(name, rate, duration);
-			//System.out.println(line);
-			//System.out.println(scanner.hasNextLine());
 		}
 		scanner.close();
+		isReadingFromFile = false;
+		return "NA";
 	}
-//save the DVDs currently in the array into the same file specified during the load operation, overwriting whatever data was originally there.
+
 	public void save() {
-		System.out.println("modified: " + modified);
+		//System.out.println("modified: " + modified);
 		if(modified){
 			PrintWriter outputStream = null;
 			try{
 				outputStream = new PrintWriter( new FileOutputStream(sourceName));
-				System.out.println("\nOK");
+				//System.out.println("\nOK");
 			}catch(FileNotFoundException error){
 				System.out.println("Could not open file ot write in "+error);
 			}
@@ -156,6 +159,7 @@ public class DVDCollection {
 				outputStream.println(line);
 			}
 			outputStream.close();
+			modified = false;
 		}
 			
 	}
@@ -200,18 +204,7 @@ public class DVDCollection {
 		dvdArray = temp;
 	}
 
-	/*public static void main(String[] args) {
-		DVDCollection d = new DVDCollection();
-	
-		try {
-			d.loadData("10366837.txt");
-		} catch (IOException error) {
-			error.printStackTrace();
-		}
-		System.out.println(d.toString());
-		System.out.println(d.getDVDsByRating("PG"));
-
-		System.out.println(d.toString());
-		d.save();
-	}*/
+	public boolean changed(){
+		return modified;
+	}
 }
