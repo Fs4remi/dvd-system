@@ -24,10 +24,10 @@ public class CenterPanel extends JPanel {
     CenterPanel(){
         super();
 
-        //setBackground(new Color(255, 0, 225, 255));
+        setBackground(new Color(255, 0, 255, 255));
         setPreferredSize(new Dimension(375, 400));
         setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         titleLabel = new JLabel("Name");
         lengthLabel = new JLabel("Duration");
@@ -55,9 +55,12 @@ public class CenterPanel extends JPanel {
         add(rate);
         add(Box.createVerticalGlue());
 
-        icon = new ImageIcon("images/image.png"); 
+        icon = new ImageIcon("images/main.png"); 
         picLabel = new JLabel(icon);
+
+        picLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(picLabel);
+        
     }
 
     public void showDetails(DVD movie){
@@ -66,5 +69,9 @@ public class CenterPanel extends JPanel {
         length.setText(String.valueOf(movie.getRunningTime()));
        
         revalidate();
+    }
+
+    public void showByRating(String[] ratedMovies){
+
     }
 }

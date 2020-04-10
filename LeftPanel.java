@@ -11,6 +11,7 @@ public class LeftPanel extends JPanel  {
     private JScrollPane listScroller;
 
     private componentListener listener;
+
     private Color theColor;
     LeftPanel(String[] names) {
         super();
@@ -54,8 +55,12 @@ public class LeftPanel extends JPanel  {
         add(listScroller);
     }
 
-
     public void setListener(componentListener incominglistener){
         this.listener = incominglistener;
+    }
+
+    public void updateList(String[] titles){
+        list.setListData(titles);
+        
     }
 }

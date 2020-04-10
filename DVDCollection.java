@@ -90,6 +90,7 @@ public class DVDCollection {
 		int total = 0;
 		for(int i = 0; i < numdvds; i++) 
 			total +=  dvdArray[i].getRunningTime();
+		System.out.println("from collection, time: " +total);
 		return total;
 	}
 
@@ -116,7 +117,7 @@ public class DVDCollection {
 			String line = scanner.nextLine();
 
 			//split the line on , characters
-			String[] separated_values  = line.replaceAll("\\s", "").split(",");
+			String[] separated_values  = line.trim().split(",");
 			
 			if(separated_values.length > 3 || separated_values.length < 3){
 				return "File doesn't follow the expected format TITLE/RATING/##";
@@ -174,6 +175,14 @@ public class DVDCollection {
 		return numdvds == 0;
 	}
 
+	public DVD getDVDDetail(String name){
+		int index = getIndexOf(name);
+		if( index != -1){
+			return dvdArray[index]; 
+		}
+		return null;
+	}
+	
 	private int getIndexOf(String title){
 		if(isEmpty())
 			return -1;
@@ -207,4 +216,14 @@ public class DVDCollection {
 	public boolean changed(){
 		return modified;
 	}
+
+	public String[] getTitles(){
+		String[] names = new String[numdvds];
+		for(int i = 0; i < numdvds; i++){
+			names[i] = dvdArray[i].getTitle();
+		}
+		return names;
+	}
+	
+	
 }
